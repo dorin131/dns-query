@@ -15,10 +15,14 @@ void DNS::get(std::string url)
   auto qname = &msg_buffer[sizeof(DNS_header)];
   std::cout
     << "- Query\n"
-    << "Name: " << qname_to_url(qname) << std::endl
-    << "Answers RRs: " << ntohs(dns_response_header->AnswerRRs) << std::endl
-    << "Authority RRs: " << ntohs(dns_response_header->AuthorityRRs) << std::endl
-    << "Additional RRs: " << ntohs(dns_response_header->AdditionalRRs) << std::endl;
+    << "Name: "
+    << qname_to_url(qname) << std::endl
+    << "Answers RRs: "
+    << ntohs(dns_response_header->AnswerRRs) << std::endl
+    << "Authority RRs: "
+    << ntohs(dns_response_header->AuthorityRRs) << std::endl
+    << "Additional RRs: "
+    << ntohs(dns_response_header->AdditionalRRs) << std::endl;
 
   // Pointer to first answer
   unsigned char* answer_ptr = reinterpret_cast<unsigned char*>(
@@ -28,18 +32,20 @@ void DNS::get(std::string url)
 
   // Looping through all answers
   for (int i = 0, count = ntohs(dns_response_header->AnswerRRs); i < count; i++) {
-    ResourceRecord* answer = reinterpret_cast<ResourceRecord*>(reinterpret_cast<char*>(answer_ptr) + strlen(reinterpret_cast<char*>(qname)) + 1);
+    ResourceRecord* answer = reinterpret_cast<ResourceRecord*>(
+      reinterpret_cast<char*>(answer_ptr) +
+      strlen(reinterpret_cast<char*>(qname)) + 1);
     std::cout
       << "\n- Answer(" << i + 1 << ")\n"
       << "Type: " << ntohs(answer->rr_type) << std::endl
       << "Class: " << ntohs(answer->rr_class) << std::endl
       << "TTL: " << ntohl(answer->rr_ttl) << std::endl
       << "Data length: " << ntohs(answer->rr_rdlength) << std::endl
-      << "Address: " << read_ip(answer) << std::endl << std::endl;
+      << "Address: " << read_ip(answer) << std::endl;
 
     // Set pointer to next answer
     if (i < count - 1) {
-      answer_ptr += 2 + sizeof(ResourceRecord) + sizeof(IP) - 2;
+      answer_ptr += sizeof(ResourceRecord) + sizeof(IP);
     }
   }
 }
@@ -128,7 +134,9 @@ void DNS::build_message(std::string url)
   std::string qname_str = url_to_qname(url);
   memcpy(qname, qname_str.c_str(), sizeof(qname_str));
 
-  qdata = reinterpret_cast<QData*>(&msg_buffer[sizeof(DNS_header) + strlen(reinterpret_cast<char*>(qname)) + 1]);
+  qdata = reinterpret_cast<QData*>(
+    &msg_buffer[sizeof(DNS_header) +
+    strlen(reinterpret_cast<char*>(qname)) + 1]);
   qdata->qtype = htons(1);
   qdata->qclass = htons(1);
 }
@@ -187,7 +195,7 @@ std::string DNS::qname_to_url(unsigned char* qname)
 int main(int argc, char *argv[])
 {
   DNS dns;
-  std::string domain = "google.com";
+  std::string domain = "die.net";
   if (argc > 1) {
     domain = argv[1];
   }
