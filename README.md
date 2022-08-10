@@ -6,6 +6,12 @@ By default it will use Cloudflare's 1.1.1.1
 
 <i>Disclaimer: Built for educational purposes and for fun</i>
 
+## Build
+
+```shell
+./compile.sh
+```
+
 ## Usage
 ```bash
 ./dns ycombinator.com
